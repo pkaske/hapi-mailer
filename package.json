@@ -1,6 +1,6 @@
 {
   "name": "hapi-mailer",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Mailer plugin for hapi.",
   "main": "index.js",
   "scripts": {

@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://gergoerdosi@github.com/gergoerdosi/hapi-mailer.git"
+    "url": "https://github.com/gergoerdosi/hapi-mailer.git"
   },
   "keywords": [
     "hapi",
@@ -26,18 +26,18 @@
   "dependencies": {
     "hoek": "2.x.x",
     "items": "1.x.x",
-    "joi": "^4.7.x",
+    "joi": "6.x.x",
     "juice": "1.1.x",
-    "nodemailer": "^1.3.x"
+    "nodemailer": "1.3.x"
   },
   "peerDependencies": {
-    "hapi": ">=8.x.x"
+    "hapi": ">=8.0.0"
   },
   "devDependencies": {
     "code": "1.x.x",
-    "handlebars": "2.x.x",
+    "handlebars": "3.x.x",
     "hapi": "8.x.x",
     "lab": "5.x.x",
-    "nodemailer-stub-transport": "^0.1.4"
+    "nodemailer-stub-transport": "1.x.x"
   }
 }

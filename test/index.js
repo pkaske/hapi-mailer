@@ -123,7 +123,7 @@ describe('Mailer', function () {
         });
     });
 
-    it('send the email when content is a string', function (done) {
+    it('sends the email when content is a string', function (done) {
 
         var server = new Hapi.Server();
         server.connection();
@@ -220,6 +220,197 @@ describe('Mailer', function () {
             server.inject({ method: 'POST', url: '/' }, function (res) {
 
                 expect(res.statusCode).to.equal(500);
+                done();
+            });
+        });
+    });
+
+    it('inlines styles when inline option is true', function (done) {
+
+        var server = new Hapi.Server();
+        server.connection();
+
+        server.route({
+            method: 'POST',
+            path: '/',
+            handler: function (request, reply) {
+
+                var Mailer = request.server.plugins.mailer;
+
+                var data = {
+                    from: 'from@example.com',
+                    to: 'to@example.com',
+                    subject: 'test',
+                    html: {
+                        path: 'inline.html'
+                    },
+                    context: {
+                        content: 'HANDLEBARS'
+                    }
+                };
+
+                Mailer.sendMail(data, function (err, info) {
+
+                    reply(info);
+                });
+            }
+        });
+
+        var options = {
+            transport: require('nodemailer-stub-transport')(),
+            views: {
+                engines: {
+                    html: {
+                        module: Handlebars.create(),
+                        path: Path.join(__dirname, 'templates')
+                    }
+                }
+            }
+        };
+
+        var plugin = {
+            register: require('..'),
+            options: options
+        };
+
+        server.register(plugin, function (err) {
+
+            server.inject({ method: 'POST', url: '/' }, function (res) {
+
+                expect(res.result).to.be.an.object();
+
+                var response = res.result.response.toString();
+                expect(response).to.contain('<p style="color: red; text-decoration: underline;">');
+                expect(response).to.contain('<strong style="font-weight: bold;">');
+                expect(response).to.not.contain('<style>');
+
+                done();
+            });
+        });
+    });
+
+    it('does not inline styles when inline option is false', function (done) {
+
+        var server = new Hapi.Server();
+        server.connection();
+
+        server.route({
+            method: 'POST',
+            path: '/',
+            handler: function (request, reply) {
+
+                var Mailer = request.server.plugins.mailer;
+
+                var data = {
+                    from: 'from@example.com',
+                    to: 'to@example.com',
+                    subject: 'test',
+                    html: {
+                        path: 'inline.html'
+                    },
+                    context: {
+                        content: 'HANDLEBARS'
+                    }
+                };
+
+                Mailer.sendMail(data, function (err, info) {
+
+                    reply(info);
+                });
+            }
+        });
+
+        var options = {
+            transport: require('nodemailer-stub-transport')(),
+            views: {
+                engines: {
+                    html: {
+                        module: Handlebars.create(),
+                        path: Path.join(__dirname, 'templates')
+                    }
+                }
+            },
+            inline: false
+        };
+
+        var plugin = {
+            register: require('..'),
+            options: options
+        };
+
+        server.register(plugin, function (err) {
+
+            server.inject({ method: 'POST', url: '/' }, function (res) {
+
+                expect(res.result).to.be.an.object();
+
+                var response = res.result.response.toString();
+                expect(response).to.contain('<p>test <strong>test</strong> test</p>');
+                expect(response).to.contain('<style>');
+
+                done();
+            });
+        });
+    });
+
+    it('does not inline styles when rendering text format', function (done) {
+
+        var server = new Hapi.Server();
+        server.connection();
+
+        server.route({
+            method: 'POST',
+            path: '/',
+            handler: function (request, reply) {
+
+                var Mailer = request.server.plugins.mailer;
+
+                var data = {
+                    from: 'from@example.com',
+                    to: 'to@example.com',
+                    subject: 'test',
+                    text: {
+                        path: 'inline.text'
+                    },
+                    context: {
+                        content: 'HANDLEBARS'
+                    }
+                };
+
+                Mailer.sendMail(data, function (err, info) {
+
+                    reply(info);
+                });
+            }
+        });
+
+        var options = {
+            transport: require('nodemailer-stub-transport')(),
+            views: {
+                engines: {
+                    text: {
+                        module: Handlebars.create(),
+                        path: Path.join(__dirname, 'templates')
+                    }
+                }
+            },
+            inline: false
+        };
+
+        var plugin = {
+            register: require('..'),
+            options: options
+        };
+
+        server.register(plugin, function (err) {
+
+            server.inject({ method: 'POST', url: '/' }, function (res) {
+
+                expect(res.result).to.be.an.object();
+
+                var response = res.result.response.toString();
+                expect(response).to.contain('test test test');
+
                 done();
             });
         });

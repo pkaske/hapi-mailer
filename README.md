@@ -16,6 +16,7 @@ The plugin accepts the following configuration options:
 
 * `transport`: A Nodemailer transport mechanism. If it is not set `nodemailer-direct-transport` transport is used. If it is a regular object `nodemailer-smtp-transport` is used and the value is passed as SMTP configuration.
 * `views`: The views configuration as described in the server's [`views`](https://github.com/hapijs/hapi/blob/master/docs/Reference.md#server.config.views) option. Note that due to the way node `require()` operates, plugins must require rendering engines directly and pass the engine using the `engines.module` option. Note that relative paths are relative to the plugin root, not the working directory or the application registering the plugin.
+* `inline`: A boolean value to inline CSS. Defaults to `true`.
 
 **Example:**
 

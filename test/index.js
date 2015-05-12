@@ -1,12 +1,14 @@
 'use strict';
 
-// Load external modules
+// Load modules
 var Code = require('code');
+var Fs = require('fs');
 var Handlebars = require('handlebars');
 var Hapi = require('hapi');
 var Lab = require('lab');
 var Nodemailer = require('nodemailer');
 var Path = require('path');
+var Sinon = require('sinon');
 
 // Test shortcuts
 var lab = exports.lab = Lab.script();
@@ -225,6 +227,175 @@ describe('Mailer', function () {
         });
     });
 
+    it('inlines images when inline option is true', function (done) {
+
+        var server = new Hapi.Server();
+        server.connection();
+
+        server.route({
+            method: 'POST',
+            path: '/',
+            handler: function (request, reply) {
+
+                var Mailer = request.server.plugins.mailer;
+
+                var data = {
+                    from: 'from@example.com',
+                    to: 'to@example.com',
+                    subject: 'test',
+                    html: {
+                        path: 'inline_images.html'
+                    }
+                };
+
+                Mailer.sendMail(data, function (err, info) {
+
+                    reply(info);
+                });
+            }
+        });
+
+        var options = {
+            transport: require('nodemailer-stub-transport')(),
+            views: {
+                engines: {
+                    html: {
+                        module: Handlebars.create(),
+                        path: Path.join(__dirname, 'templates')
+                    }
+                }
+            }
+        };
+
+        var plugin = {
+            register: require('..'),
+            options: options
+        };
+
+        server.register(plugin, function (err) {
+
+            server.inject({ method: 'POST', url: '/' }, function (res) {
+
+                expect(res.result).to.be.an.object();
+
+                var response = res.result.response.toString();
+                expect(response).to.match(/<img style="test" src="cid:\w+" width="100%">/);
+                expect(response).to.match(/Content-Id: <\w+>/);
+
+                done();
+            });
+        });
+    });
+
+    it('does not inline images when inline option is false', function (done) {
+
+        var server = new Hapi.Server();
+        server.connection();
+
+        server.route({
+            method: 'POST',
+            path: '/',
+            handler: function (request, reply) {
+
+                var Mailer = request.server.plugins.mailer;
+
+                var data = {
+                    from: 'from@example.com',
+                    to: 'to@example.com',
+                    subject: 'test',
+                    html: {
+                        path: Path.join(__dirname, 'templates/inline_images.html')
+                    }
+                };
+
+                Mailer.sendMail(data, function (err, info) {
+
+                    reply(info);
+                });
+            }
+        });
+
+        var options = {
+            transport: require('nodemailer-stub-transport')(),
+            inlineImages: false
+        };
+
+        var plugin = {
+            register: require('..'),
+            options: options
+        };
+
+        server.register(plugin, function (err) {
+
+            server.inject({ method: 'POST', url: '/' }, function (res) {
+
+                expect(res.result).to.be.an.object();
+
+                var response = res.result.response.toString();
+                expect(response).to.match(/<img style="test" src="data:image\/png;base64,[^"]+" width="100%">/);
+
+                done();
+            });
+        });
+    });
+
+    it('returns an error when reading of the file fails', function (done) {
+
+        Sinon.stub(Fs, 'readFile', function (path, options, callback) {
+
+            callback(new Error('Failed to read view file: /test'));
+        });
+
+        var server = new Hapi.Server();
+        server.connection();
+
+        server.route({
+            method: 'POST',
+            path: '/',
+            handler: function (request, reply) {
+
+                var Mailer = request.server.plugins.mailer;
+
+                var data = {
+                    from: 'from@example.com',
+                    to: 'to@example.com',
+                    subject: 'test',
+                    html: {
+                        path: 'inline_images.html'
+                    },
+                    context: {
+                        content: 'HANDLEBARS'
+                    }
+                };
+
+                Mailer.sendMail(data, function (err, info) {
+
+                    reply(err);
+                });
+            }
+        });
+
+        var options = {
+            transport: require('nodemailer-stub-transport')()
+        };
+
+        var plugin = {
+            register: require('..'),
+            options: options
+        };
+
+        server.register(plugin, function (err) {
+
+            server.inject({ method: 'POST', url: '/' }, function (res) {
+
+                Fs.readFile.restore();
+
+                expect(res.statusCode).to.equal(500);
+                done();
+            });
+        });
+    });
+
     it('inlines styles when inline option is true', function (done) {
 
         var server = new Hapi.Server();
@@ -242,7 +413,7 @@ describe('Mailer', function () {
                     to: 'to@example.com',
                     subject: 'test',
                     html: {
-                        path: 'inline.html'
+                        path: 'inline_styles.html'
                     },
                     context: {
                         content: 'HANDLEBARS'
@@ -306,7 +477,7 @@ describe('Mailer', function () {
                     to: 'to@example.com',
                     subject: 'test',
                     html: {
-                        path: 'inline.html'
+                        path: 'inline_styles.html'
                     },
                     context: {
                         content: 'HANDLEBARS'
@@ -330,7 +501,7 @@ describe('Mailer', function () {
                     }
                 }
             },
-            inline: false
+            inlineStyles: false
         };
 
         var plugin = {
@@ -370,7 +541,7 @@ describe('Mailer', function () {
                     to: 'to@example.com',
                     subject: 'test',
                     text: {
-                        path: 'inline.text'
+                        path: 'inline_styles.text'
                     },
                     context: {
                         content: 'HANDLEBARS'
@@ -394,7 +565,7 @@ describe('Mailer', function () {
                     }
                 }
             },
-            inline: false
+            inlineStyles: false
         };
 
         var plugin = {

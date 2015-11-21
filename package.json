@@ -2,7 +2,7 @@
   "name": "hapi-mailer",
   "version": "4.0.0",
   "description": "Mailer plugin for hapi.",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
     "test": "lab -a code -t 80 -L"
   },

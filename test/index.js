@@ -39,7 +39,7 @@ lab.describe('Mailer', () => {
           }
         };
 
-        const Mailer = request.server.plugins.mailer;
+        const Mailer = request.server.plugins['hapi-mailer'];
         Mailer.send(data, (err, info) => reply(info));
       }
     });
@@ -92,7 +92,7 @@ lab.describe('Mailer', () => {
           }
         };
 
-        const Mailer = request.server.plugins.mailer;
+        const Mailer = request.server.plugins['hapi-mailer'];
         Mailer.send(data, (err, info) => reply(info));
       }
     });
@@ -135,7 +135,7 @@ lab.describe('Mailer', () => {
           html: '<p>NODEMAILER</p>'
         };
 
-        const Mailer = request.server.plugins.mailer;
+        const Mailer = request.server.plugins['hapi-mailer'];
         Mailer.send(data, (err, info) => reply(info));
       }
     });
@@ -183,7 +183,7 @@ lab.describe('Mailer', () => {
           }
         };
 
-        const Mailer = request.server.plugins.mailer;
+        const Mailer = request.server.plugins['hapi-mailer'];
         Mailer.send(data, (err, info) => reply(err));
       }
     });
@@ -234,7 +234,7 @@ lab.describe('Mailer', () => {
           }
         };
 
-        const Mailer = request.server.plugins.mailer;
+        const Mailer = request.server.plugins['hapi-mailer'];
         Mailer.send(data, (err, info) => reply(info));
       }
     });
@@ -290,7 +290,7 @@ lab.describe('Mailer', () => {
           }
         };
 
-        const Mailer = request.server.plugins.mailer;
+        const Mailer = request.server.plugins['hapi-mailer'];
         Mailer.send(data, (err, info) => reply(info));
       }
     });
@@ -345,7 +345,7 @@ lab.describe('Mailer', () => {
           }
         };
 
-        const Mailer = request.server.plugins.mailer;
+        const Mailer = request.server.plugins['hapi-mailer'];
         Mailer.send(data, (err, info) => reply(err));
       }
     });
@@ -393,7 +393,7 @@ lab.describe('Mailer', () => {
           }
         };
 
-        const Mailer = request.server.plugins.mailer;
+        const Mailer = request.server.plugins['hapi-mailer'];
         Mailer.send(data, (err, info) => reply(info));
       }
     });
@@ -453,7 +453,7 @@ lab.describe('Mailer', () => {
           }
         };
 
-        const Mailer = request.server.plugins.mailer;
+        const Mailer = request.server.plugins['hapi-mailer'];
         Mailer.send(data, (err, info) => reply(info));
       }
     });
@@ -513,7 +513,7 @@ lab.describe('Mailer', () => {
           }
         };
 
-        const Mailer = request.server.plugins.mailer;
+        const Mailer = request.server.plugins['hapi-mailer'];
         Mailer.send(data, (err, info) => reply(info));
       }
     });

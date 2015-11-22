@@ -89,5 +89,5 @@ exports.register = function(server, options, next) {
 
 
 exports.register.attributes = {
-  name: 'mailer'
+  name: 'hapi-mailer'
 };

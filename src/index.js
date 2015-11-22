@@ -43,7 +43,7 @@ exports.register = function(server, options, next) {
       server.views(config.views);
     }
 
-    server.expose('sendMail', (data, callback) => {
+    server.expose('send', (data, callback) => {
       Items.parallel(['text', 'html'], (format, cb) => {
         const path = typeof data[format] === 'object' ? data[format].path : '';
         const extension = Path.extname(path).substr(1);

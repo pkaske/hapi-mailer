@@ -40,7 +40,7 @@ lab.describe('Mailer', () => {
         };
 
         const Mailer = request.server.plugins.mailer;
-        Mailer.sendMail(data, (err, info) => reply(info));
+        Mailer.send(data, (err, info) => reply(info));
       }
     });
 
@@ -93,7 +93,7 @@ lab.describe('Mailer', () => {
         };
 
         const Mailer = request.server.plugins.mailer;
-        Mailer.sendMail(data, (err, info) => reply(info));
+        Mailer.send(data, (err, info) => reply(info));
       }
     });
 
@@ -136,7 +136,7 @@ lab.describe('Mailer', () => {
         };
 
         const Mailer = request.server.plugins.mailer;
-        Mailer.sendMail(data, (err, info) => reply(info));
+        Mailer.send(data, (err, info) => reply(info));
       }
     });
 
@@ -184,7 +184,7 @@ lab.describe('Mailer', () => {
         };
 
         const Mailer = request.server.plugins.mailer;
-        Mailer.sendMail(data, (err, info) => reply(err));
+        Mailer.send(data, (err, info) => reply(err));
       }
     });
 
@@ -235,7 +235,7 @@ lab.describe('Mailer', () => {
         };
 
         const Mailer = request.server.plugins.mailer;
-        Mailer.sendMail(data, (err, info) => reply(info));
+        Mailer.send(data, (err, info) => reply(info));
       }
     });
 
@@ -291,7 +291,7 @@ lab.describe('Mailer', () => {
         };
 
         const Mailer = request.server.plugins.mailer;
-        Mailer.sendMail(data, (err, info) => reply(info));
+        Mailer.send(data, (err, info) => reply(info));
       }
     });
 
@@ -346,7 +346,7 @@ lab.describe('Mailer', () => {
         };
 
         const Mailer = request.server.plugins.mailer;
-        Mailer.sendMail(data, (err, info) => reply(err));
+        Mailer.send(data, (err, info) => reply(err));
       }
     });
 
@@ -394,7 +394,7 @@ lab.describe('Mailer', () => {
         };
 
         const Mailer = request.server.plugins.mailer;
-        Mailer.sendMail(data, (err, info) => reply(info));
+        Mailer.send(data, (err, info) => reply(info));
       }
     });
 
@@ -454,7 +454,7 @@ lab.describe('Mailer', () => {
         };
 
         const Mailer = request.server.plugins.mailer;
-        Mailer.sendMail(data, (err, info) => reply(info));
+        Mailer.send(data, (err, info) => reply(info));
       }
     });
 
@@ -514,7 +514,7 @@ lab.describe('Mailer', () => {
         };
 
         const Mailer = request.server.plugins.mailer;
-        Mailer.sendMail(data, (err, info) => reply(info));
+        Mailer.send(data, (err, info) => reply(info));
       }
     });
 

@@ -1,6 +1,6 @@
 {
   "name": "@nesive/hapi-mailer",
-  "version": "5.0.0",
+  "version": "5.0.1",
   "description": "Mailer plugin for hapi.",
   "main": "src/index.js",
   "scripts": {

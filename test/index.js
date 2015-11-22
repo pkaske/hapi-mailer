@@ -16,606 +16,539 @@ const HapiMailer = require('..');
 
 // Test shortcuts
 const lab = exports.lab = Lab.script();
-const describe = lab.describe;
-const it = lab.it;
 const expect = Code.expect;
 
+lab.describe('Mailer', () => {
+  lab.it('sends the email when a view is used', (done) => {
+    const server = new Hapi.Server();
+    server.connection();
 
-describe('Mailer', function () {
-
-    it('sends the email when a view is used', function (done) {
-
-        var server = new Hapi.Server();
-        server.connection();
-
-        server.route({
-            method: 'POST',
-            path: '/',
-            handler: function (request, reply) {
-
-                var Mailer = request.server.plugins.mailer;
-
-                var data = {
-                    from: 'from@example.com',
-                    to: 'to@example.com',
-                    subject: 'test',
-                    html: {
-                        path: 'handlebars.html'
-                    },
-                    context: {
-                        content: 'HANDLEBARS'
-                    }
-                };
-
-                Mailer.sendMail(data, function (err, info) {
-
-                    reply(info);
-                });
-            }
-        });
-
-        const plugins = [
-          {
-            register: HapiMailer,
-            options: {
-              transport: require('nodemailer-stub-transport')(),
-              views: {
-                  engines: {
-                      html: {
-                          module: Handlebars.create(),
-                          path: Path.join(__dirname, 'templates')
-                      }
-                  }
-              }
-            }
+    server.route({
+      method: 'POST',
+      path: '/',
+      handler: function(request, reply) {
+        const data = {
+          from: 'from@example.com',
+          to: 'to@example.com',
+          subject: 'test',
+          html: {
+            path: 'handlebars.html'
           },
-          {
-            register: Vision
+          context: {
+            content: 'HANDLEBARS'
           }
-        ];
+        };
 
-        server.register(plugins, (err) => {
-          server.initialize((err) => {
-            expect(err).to.not.exist();
-
-            server.inject({ method: 'POST', url: '/' }, function (res) {
-
-                expect(res.result).to.be.an.object();
-                expect(res.result.response.toString()).to.contain('<p>HANDLEBARS</p>');
-
-                done();
-            });
-          });
-        });
+        const Mailer = request.server.plugins.mailer;
+        Mailer.sendMail(data, (err, info) => reply(info));
+      }
     });
 
-    it('sends the email when content is loaded from file', function (done) {
-
-        var server = new Hapi.Server();
-        server.connection();
-
-        server.route({
-            method: 'POST',
-            path: '/',
-            handler: function (request, reply) {
-
-                var data = {
-                    from: 'from@example.com',
-                    to: 'to@example.com',
-                    subject: 'test',
-                    html: {
-                        path: Path.join(__dirname, 'templates/nodemailer.html')
-                    }
-                };
-
-                var Mailer = request.server.plugins.mailer;
-                Mailer.sendMail(data, function (err, info) {
-
-                    reply(info);
-                });
+    const HapiMailer = {
+      register: require('..'),
+      options: {
+        transport: require('nodemailer-stub-transport')(),
+        views: {
+          engines: {
+            html: {
+              module: Handlebars.create(),
+              path: Path.join(__dirname, 'templates')
             }
-        });
+          }
+        }
+      }
+    };
 
-        var plugins = [
-          {
-            register: Vision
+    server.register([HapiMailer, Vision], (err) => {
+      expect(err).to.not.exist();
+
+      server.initialize((err) => {
+        expect(err).to.not.exist();
+
+        server.inject({ method: 'POST', url: '/' }, (res) => {
+          expect(res.result).to.be.an.object();
+          expect(res.result.response.toString()).to.contain('<p>HANDLEBARS</p>');
+
+          done();
+        });
+      });
+    });
+  });
+
+  lab.it('sends the email when content is loaded from file', (done) => {
+    const server = new Hapi.Server();
+    server.connection();
+
+    server.route({
+      method: 'POST',
+      path: '/',
+      handler: function(request, reply) {
+        const data = {
+          from: 'from@example.com',
+          to: 'to@example.com',
+          subject: 'test',
+          html: {
+            path: Path.join(__dirname, 'templates/nodemailer.html')
+          }
+        };
+
+        const Mailer = request.server.plugins.mailer;
+        Mailer.sendMail(data, (err, info) => reply(info));
+      }
+    });
+
+    const HapiMailer = {
+      register: require('..'),
+      options: {
+        transport: require('nodemailer-stub-transport')()
+      }
+    };
+
+    server.register([HapiMailer, Vision], (err) => {
+      expect(err).to.not.exist();
+
+      server.initialize((err) => {
+        expect(err).to.not.exist();
+
+        server.inject({ method: 'POST', url: '/' }, (res) => {
+          expect(res.result).to.be.an.object();
+          expect(res.result.response.toString()).to.contain('<p>NODEMAILER</p>');
+
+          done();
+        });
+      });
+    });
+  });
+
+  lab.it('sends the email when content is a string', (done) => {
+    const server = new Hapi.Server();
+    server.connection();
+
+    server.route({
+      method: 'POST',
+      path: '/',
+      handler: function(request, reply) {
+        const data = {
+          from: 'from@example.com',
+          to: 'to@example.com',
+          subject: 'test',
+          html: '<p>NODEMAILER</p>'
+        };
+
+        const Mailer = request.server.plugins.mailer;
+        Mailer.sendMail(data, (err, info) => reply(info));
+      }
+    });
+
+    const HapiMailer = {
+      register: require('..'),
+      options: {
+        transport: require('nodemailer-stub-transport')()
+      }
+    };
+
+    server.register([HapiMailer, Vision], (err) => {
+      expect(err).to.not.exist();
+
+      server.initialize((err) => {
+        expect(err).to.not.exist();
+
+        server.inject({ method: 'POST', url: '/' }, (res) => {
+          expect(res.result).to.be.an.object();
+          expect(res.result.response.toString()).to.contain('<p>NODEMAILER</p>');
+
+          done();
+        });
+      });
+    });
+  });
+
+  lab.it('throws an error when rendering fails', (done) => {
+    const server = new Hapi.Server({ debug: false });
+    server.connection();
+
+    server.route({
+      method: 'POST',
+      path: '/',
+      handler: function(request, reply) {
+        const data = {
+          from: 'from@example.com',
+          to: 'to@example.com',
+          subject: 'test',
+          html: {
+            path: 'invalid.html'
           },
-          {
-              register: HapiMailer,
-              options: {
-                  transport: require('nodemailer-stub-transport')()
-              }
+          context: {
+            content: 'HANDLEBARS'
           }
-        ];
+        };
 
-        server.register(plugins, function (err) {
-
-          server.initialize((err) => {
-            server.inject({ method: 'POST', url: '/' }, function (res) {
-
-                expect(res.result).to.be.an.object();
-                expect(res.result.response.toString()).to.contain('<p>NODEMAILER</p>');
-
-                done();
-            });
-          });
-
-
-        });
+        const Mailer = request.server.plugins.mailer;
+        Mailer.sendMail(data, (err, info) => reply(err));
+      }
     });
 
-    it('sends the email when content is a string', function (done) {
-
-        var server = new Hapi.Server();
-        server.connection();
-
-        server.route({
-            method: 'POST',
-            path: '/',
-            handler: function (request, reply) {
-
-                var data = {
-                    from: 'from@example.com',
-                    to: 'to@example.com',
-                    subject: 'test',
-                    html: '<p>NODEMAILER</p>'
-                };
-
-                var Mailer = request.server.plugins.mailer;
-                Mailer.sendMail(data, function (err, info) {
-
-                    reply(info);
-                });
+    const HapiMailer = {
+      register: require('..'),
+      options: {
+        transport: require('nodemailer-stub-transport')(),
+        views: {
+          engines: {
+            html: {
+              module: Handlebars.create(),
+              path: Path.join(__dirname, 'templates')
             }
+          }
+        }
+      }
+    };
+
+    server.register([HapiMailer, Vision], (err) => {
+      expect(err).to.not.exist();
+
+      server.initialize((err) => {
+        expect(err).to.not.exist();
+
+        server.inject({ method: 'POST', url: '/' }, (res) => {
+          expect(res.statusCode).to.equal(500);
+          done();
         });
+      });
+    });
+  });
 
-        var plugin = {
-            register: require('..'),
-            options: {
-                transport: require('nodemailer-stub-transport')()
-            }
+  lab.it('inlines images when inline option is true', (done) => {
+    const server = new Hapi.Server();
+    server.connection();
+
+    server.route({
+      method: 'POST',
+      path: '/',
+      handler: function(request, reply) {
+        const data = {
+          from: 'from@example.com',
+          to: 'to@example.com',
+          subject: 'test',
+          html: {
+            path: 'inline_images.html'
+          }
         };
 
-        server.register([Vision, plugin], function (err) {
-
-          server.initialize((err) => {
-            server.inject({ method: 'POST', url: '/' }, function (res) {
-
-                expect(res.result).to.be.an.object();
-                expect(res.result.response.toString()).to.contain('<p>NODEMAILER</p>');
-
-                done();
-            });
-          });
-
-
-        });
+        const Mailer = request.server.plugins.mailer;
+        Mailer.sendMail(data, (err, info) => reply(info));
+      }
     });
 
-    it('throws an error when rendering fails', function (done) {
-
-        var server = new Hapi.Server({ debug: false });
-        server.connection();
-
-        server.route({
-            method: 'POST',
-            path: '/',
-            handler: function (request, reply) {
-
-                var Mailer = request.server.plugins.mailer;
-
-                var data = {
-                    from: 'from@example.com',
-                    to: 'to@example.com',
-                    subject: 'test',
-                    html: {
-                        path: 'invalid.html'
-                    },
-                    context: {
-                        content: 'HANDLEBARS'
-                    }
-                };
-
-                Mailer.sendMail(data, function (err, info) {
-
-                    reply(err);
-                });
+    const HapiMailer = {
+      register: require('..'),
+      options: {
+        transport: require('nodemailer-stub-transport')(),
+        views: {
+          engines: {
+            html: {
+              module: Handlebars.create(),
+              path: Path.join(__dirname, 'templates')
             }
+          }
+        }
+      }
+    };
+
+    server.register([HapiMailer, Vision], (err) => {
+      expect(err).to.not.exist();
+
+      server.initialize((err) => {
+        expect(err).to.not.exist();
+
+        server.inject({ method: 'POST', url: '/' }, (res) => {
+          expect(res.result).to.be.an.object();
+
+          const response = res.result.response.toString();
+          expect(response).to.match(/<img style="test" src="cid:\w+" width="100%">/);
+          expect(response).to.match(/Content-Id: <\w+>/);
+
+          done();
         });
+      });
+    });
+  });
 
-        var options = {
-            transport: require('nodemailer-stub-transport')(),
-            views: {
-                engines: {
-                    html: {
-                        module: Handlebars.create(),
-                        path: Path.join(__dirname, 'templates')
-                    }
-                }
-            }
+  lab.it('does not inline images when inline option is false', (done) => {
+    const server = new Hapi.Server();
+    server.connection();
+
+    server.route({
+      method: 'POST',
+      path: '/',
+      handler: function(request, reply) {
+        const data = {
+          from: 'from@example.com',
+          to: 'to@example.com',
+          subject: 'test',
+          html: {
+            path: Path.join(__dirname, 'templates/inline_images.html')
+          }
         };
 
-        var plugin = {
-            register: require('..'),
-            options: options
-        };
-
-        server.register([Vision, plugin], function (err) {
-          server.initialize((err) => {
-            server.inject({ method: 'POST', url: '/' }, function (res) {
-
-                expect(res.statusCode).to.equal(500);
-                done();
-            });
-          });
-        });
+        const Mailer = request.server.plugins.mailer;
+        Mailer.sendMail(data, (err, info) => reply(info));
+      }
     });
 
-    it('inlines images when inline option is true', function (done) {
+    const HapiMailer = {
+      register: require('..'),
+      options: {
+        transport: require('nodemailer-stub-transport')(),
+        inlineImages: false
+      }
+    };
 
-        var server = new Hapi.Server();
-        server.connection();
+    server.register([HapiMailer, Vision], (err) => {
+      expect(err).to.not.exist();
 
-        server.route({
-            method: 'POST',
-            path: '/',
-            handler: function (request, reply) {
+      server.initialize((err) => {
+        expect(err).to.not.exist();
 
-                var Mailer = request.server.plugins.mailer;
+        server.inject({ method: 'POST', url: '/' }, (res) => {
+          expect(res.result).to.be.an.object();
 
-                var data = {
-                    from: 'from@example.com',
-                    to: 'to@example.com',
-                    subject: 'test',
-                    html: {
-                        path: 'inline_images.html'
-                    }
-                };
+          const response = res.result.response.toString();
+          expect(response).to.match(/<img style=3D"test" src=3D"data:image\/png;base64,[^"]+" width=3D"100%">/);
 
-                Mailer.sendMail(data, function (err, info) {
-
-                    reply(info);
-                });
-            }
+          done();
         });
+      });
+    });
+  });
 
-        var options = {
-            transport: require('nodemailer-stub-transport')(),
-            views: {
-                engines: {
-                    html: {
-                        module: Handlebars.create(),
-                        path: Path.join(__dirname, 'templates')
-                    }
-                }
-            }
-        };
-
-        var plugin = {
-            register: require('..'),
-            options: options
-        };
-
-        server.register([Vision, plugin], function (err) {
-          server.initialize((err) => {
-            server.inject({ method: 'POST', url: '/' }, function (res) {
-
-                expect(res.result).to.be.an.object();
-
-                var response = res.result.response.toString();
-                expect(response).to.match(/<img style="test" src="cid:\w+" width="100%">/);
-                expect(response).to.match(/Content-Id: <\w+>/);
-
-                done();
-            });
-          });
-        });
+  lab.it('returns an error when reading of the file fails', (done) => {
+    Sinon.stub(Fs, 'readFile', (path, options, callback) => {
+      callback(new Error('Failed to read view file: /test'));
     });
 
-    it('does not inline images when inline option is false', function (done) {
+    const server = new Hapi.Server();
+    server.connection();
 
-        var server = new Hapi.Server();
-        server.connection();
-
-        server.route({
-            method: 'POST',
-            path: '/',
-            handler: function (request, reply) {
-
-                var Mailer = request.server.plugins.mailer;
-
-                var data = {
-                    from: 'from@example.com',
-                    to: 'to@example.com',
-                    subject: 'test',
-                    html: {
-                        path: Path.join(__dirname, 'templates/inline_images.html')
-                    }
-                };
-
-                Mailer.sendMail(data, function (err, info) {
-
-                    reply(info);
-                });
-            }
-        });
-
-        var options = {
-            transport: require('nodemailer-stub-transport')(),
-            inlineImages: false
+    server.route({
+      method: 'POST',
+      path: '/',
+      handler: function(request, reply) {
+        const data = {
+          from: 'from@example.com',
+          to: 'to@example.com',
+          subject: 'test',
+          html: {
+            path: 'inline_images.html'
+          },
+          context: {
+            content: 'HANDLEBARS'
+          }
         };
 
-        var plugin = {
-            register: require('..'),
-            options: options
-        };
-
-        server.register([Vision, plugin], function (err) {
-          server.initialize((err) => {
-            server.inject({ method: 'POST', url: '/' }, function (res) {
-
-                expect(res.result).to.be.an.object();
-
-                var response = res.result.response.toString();
-                expect(response).to.match(/<img style=3D"test" src=3D"data:image\/png;base64,[^"]+" width=3D"100%">/);
-
-                done();
-            });
-          });
-        });
+        const Mailer = request.server.plugins.mailer;
+        Mailer.sendMail(data, (err, info) => reply(err));
+      }
     });
 
-    it('returns an error when reading of the file fails', function (done) {
+    const HapiMailer = {
+      register: require('..'),
+      options: {
+        transport: require('nodemailer-stub-transport')()
+      }
+    };
 
-        Sinon.stub(Fs, 'readFile', function (path, options, callback) {
+    server.register([HapiMailer, Vision], (err) => {
+      expect(err).to.not.exist();
 
-            callback(new Error('Failed to read view file: /test'));
+      server.initialize((err) => {
+        expect(err).to.not.exist();
+
+        server.inject({ method: 'POST', url: '/' }, (res) => {
+          Fs.readFile.restore();
+
+          expect(res.statusCode).to.equal(500);
+          done();
         });
+      });
+    });
+  });
 
-        var server = new Hapi.Server();
-        server.connection();
+  lab.it('inlines styles when inline option is true', (done) => {
+    const server = new Hapi.Server();
+    server.connection();
 
-        server.route({
-            method: 'POST',
-            path: '/',
-            handler: function (request, reply) {
-
-                var Mailer = request.server.plugins.mailer;
-
-                var data = {
-                    from: 'from@example.com',
-                    to: 'to@example.com',
-                    subject: 'test',
-                    html: {
-                        path: 'inline_images.html'
-                    },
-                    context: {
-                        content: 'HANDLEBARS'
-                    }
-                };
-
-                Mailer.sendMail(data, function (err, info) {
-
-                    reply(err);
-                });
-            }
-        });
-
-        var options = {
-            transport: require('nodemailer-stub-transport')()
+    server.route({
+      method: 'POST',
+      path: '/',
+      handler: function(request, reply) {
+        const data = {
+          from: 'from@example.com',
+          to: 'to@example.com',
+          subject: 'test',
+          html: {
+            path: 'inline_styles.html'
+          },
+          context: {
+            content: 'HANDLEBARS'
+          }
         };
 
-        var plugin = {
-            register: require('..'),
-            options: options
-        };
-
-        server.register([Vision, plugin], function (err) {
-          server.initialize((err) => {
-            server.inject({ method: 'POST', url: '/' }, function (res) {
-
-                Fs.readFile.restore();
-
-                expect(res.statusCode).to.equal(500);
-                done();
-            });
-          });
-
-        });
+        const Mailer = request.server.plugins.mailer;
+        Mailer.sendMail(data, (err, info) => reply(info));
+      }
     });
 
-    it('inlines styles when inline option is true', function (done) {
-
-        var server = new Hapi.Server();
-        server.connection();
-
-        server.route({
-            method: 'POST',
-            path: '/',
-            handler: function (request, reply) {
-
-                var Mailer = request.server.plugins.mailer;
-
-                var data = {
-                    from: 'from@example.com',
-                    to: 'to@example.com',
-                    subject: 'test',
-                    html: {
-                        path: 'inline_styles.html'
-                    },
-                    context: {
-                        content: 'HANDLEBARS'
-                    }
-                };
-
-                Mailer.sendMail(data, function (err, info) {
-
-                    reply(info);
-                });
+    const HapiMailer = {
+      register: require('..'),
+      options: {
+        transport: require('nodemailer-stub-transport')(),
+        views: {
+          engines: {
+            html: {
+              module: Handlebars.create(),
+              path: Path.join(__dirname, 'templates')
             }
+          }
+        }
+      }
+    };
+
+    server.register([HapiMailer, Vision], (err) => {
+      expect(err).to.not.exist();
+
+      server.initialize((err) => {
+        expect(err).to.not.exist();
+
+        server.inject({ method: 'POST', url: '/' }, (res) => {
+          expect(res.result).to.be.an.object();
+
+          const response = res.result.response.toString();
+          expect(response).to.contain('<p style=3D"color: red; =\r\ntext-decoration: underline;">');
+          expect(response).to.contain('<strong style=3D"font-weight: =\r\nbold;">');
+          expect(response).to.not.contain('<style>');
+
+          done();
         });
+      });
+    });
+  });
 
-        var options = {
-            transport: require('nodemailer-stub-transport')(),
-            views: {
-                engines: {
-                    html: {
-                        module: Handlebars.create(),
-                        path: Path.join(__dirname, 'templates')
-                    }
-                }
-            }
+  lab.it('does not inline styles when inline option is false', (done) => {
+    const server = new Hapi.Server();
+    server.connection();
+
+    server.route({
+      method: 'POST',
+      path: '/',
+      handler: function(request, reply) {
+        const data = {
+          from: 'from@example.com',
+          to: 'to@example.com',
+          subject: 'test',
+          html: {
+            path: 'inline_styles.html'
+          },
+          context: {
+            content: 'HANDLEBARS'
+          }
         };
 
-        var plugin = {
-            register: require('..'),
-            options: options
-        };
-
-        server.register([Vision, plugin], function (err) {
-          server.initialize((err) => {
-            server.inject({ method: 'POST', url: '/' }, function (res) {
-
-                expect(res.result).to.be.an.object();
-
-                var response = res.result.response.toString();
-                expect(response).to.contain('<p style=3D"color: red; =\r\ntext-decoration: underline;">');
-                expect(response).to.contain('<strong style=3D"font-weight: =\r\nbold;">');
-                expect(response).to.not.contain('<style>');
-
-                done();
-            });
-          });
-        });
+        const Mailer = request.server.plugins.mailer;
+        Mailer.sendMail(data, (err, info) => reply(info));
+      }
     });
 
-    it('does not inline styles when inline option is false', function (done) {
-
-        var server = new Hapi.Server();
-        server.connection();
-
-        server.route({
-            method: 'POST',
-            path: '/',
-            handler: function (request, reply) {
-
-                var Mailer = request.server.plugins.mailer;
-
-                var data = {
-                    from: 'from@example.com',
-                    to: 'to@example.com',
-                    subject: 'test',
-                    html: {
-                        path: 'inline_styles.html'
-                    },
-                    context: {
-                        content: 'HANDLEBARS'
-                    }
-                };
-
-                Mailer.sendMail(data, function (err, info) {
-
-                    reply(info);
-                });
+    const HapiMailer = {
+      register: require('..'),
+      options: {
+        transport: require('nodemailer-stub-transport')(),
+        views: {
+          engines: {
+            html: {
+              module: Handlebars.create(),
+              path: Path.join(__dirname, 'templates')
             }
-        });
+          }
+        },
+        inlineStyles: false
+      }
+    };
 
-        var options = {
-            transport: require('nodemailer-stub-transport')(),
-            views: {
-                engines: {
-                    html: {
-                        module: Handlebars.create(),
-                        path: Path.join(__dirname, 'templates')
-                    }
-                }
-            },
-            inlineStyles: false
+    server.register([HapiMailer, Vision], (err) => {
+      expect(err).to.not.exist();
+
+      server.initialize((err) => {
+        expect(err).to.not.exist();
+
+        server.inject({ method: 'POST', url: '/' }, (res) => {
+          expect(res.result).to.be.an.object();
+
+          const response = res.result.response.toString();
+          expect(response).to.contain('<p>test <strong>test</strong> test</p>');
+          expect(response).to.contain('<style>');
+
+          done();
+        });
+      });
+    });
+  });
+
+  lab.it('does not inline styles when rendering text format', (done) => {
+    const server = new Hapi.Server();
+    server.connection();
+
+    server.route({
+      method: 'POST',
+      path: '/',
+      handler: function(request, reply) {
+        const data = {
+          from: 'from@example.com',
+          to: 'to@example.com',
+          subject: 'test',
+          text: {
+            path: 'inline_styles.text'
+          },
+          context: {
+            content: 'HANDLEBARS'
+          }
         };
 
-        var plugin = {
-            register: require('..'),
-            options: options
-        };
-
-        server.register([Vision, plugin], function (err) {
-          server.initialize((err) => {
-            server.inject({ method: 'POST', url: '/' }, function (res) {
-
-                expect(res.result).to.be.an.object();
-
-                var response = res.result.response.toString();
-                expect(response).to.contain('<p>test <strong>test</strong> test</p>');
-                expect(response).to.contain('<style>');
-
-                done();
-            });
-          });
-
-        });
+        const Mailer = request.server.plugins.mailer;
+        Mailer.sendMail(data, (err, info) => reply(info));
+      }
     });
 
-    it('does not inline styles when rendering text format', function (done) {
-
-        var server = new Hapi.Server();
-        server.connection();
-
-        server.route({
-            method: 'POST',
-            path: '/',
-            handler: function (request, reply) {
-
-                var Mailer = request.server.plugins.mailer;
-
-                var data = {
-                    from: 'from@example.com',
-                    to: 'to@example.com',
-                    subject: 'test',
-                    text: {
-                        path: 'inline_styles.text'
-                    },
-                    context: {
-                        content: 'HANDLEBARS'
-                    }
-                };
-
-                Mailer.sendMail(data, function (err, info) {
-
-                    reply(info);
-                });
+    const HapiMailer = {
+      register: require('..'),
+      options: {
+        transport: require('nodemailer-stub-transport')(),
+        views: {
+          engines: {
+            text: {
+              module: Handlebars.create(),
+              path: Path.join(__dirname, 'templates')
             }
+          }
+        },
+        inlineStyles: false
+      }
+    };
+
+    server.register([HapiMailer, Vision], (err) => {
+      expect(err).to.not.exist();
+
+      server.initialize((err) => {
+        expect(err).to.not.exist();
+
+        server.inject({ method: 'POST', url: '/' }, (res) => {
+          expect(res.result).to.be.an.object();
+
+          const response = res.result.response.toString();
+          expect(response).to.contain('test test test');
+
+          done();
         });
-
-        var options = {
-            transport: require('nodemailer-stub-transport')(),
-            views: {
-                engines: {
-                    text: {
-                        module: Handlebars.create(),
-                        path: Path.join(__dirname, 'templates')
-                    }
-                }
-            },
-            inlineStyles: false
-        };
-
-        var plugin = {
-            register: require('..'),
-            options: options
-        };
-
-        server.register([Vision, plugin], function (err) {
-          server.initialize((err) => {
-            server.inject({ method: 'POST', url: '/' }, function (res) {
-
-                expect(res.result).to.be.an.object();
-
-                var response = res.result.response.toString();
-                expect(response).to.contain('test test test');
-
-                done();
-            });
-          });
-        });
+      });
     });
+  });
 });

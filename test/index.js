@@ -1,20 +1,24 @@
 'use strict';
 
-// Load modules
-var Code = require('code');
-var Fs = require('fs');
-var Handlebars = require('handlebars');
-var Hapi = require('hapi');
-var Lab = require('lab');
-var Nodemailer = require('nodemailer');
-var Path = require('path');
-var Sinon = require('sinon');
+// Load external modules
+const Code = require('code');
+const Fs = require('fs');
+const Handlebars = require('handlebars');
+const Hapi = require('hapi');
+const Lab = require('lab');
+const Nodemailer = require('nodemailer');
+const Path = require('path');
+const Sinon = require('sinon');
+const Vision = require('vision');
+
+// Load internal modules
+const HapiMailer = require('..');
 
 // Test shortcuts
-var lab = exports.lab = Lab.script();
-var describe = lab.describe;
-var it = lab.it;
-var expect = Code.expect;
+const lab = exports.lab = Lab.script();
+const describe = lab.describe;
+const it = lab.it;
+const expect = Code.expect;
 
 
 describe('Mailer', function () {
@@ -50,24 +54,29 @@ describe('Mailer', function () {
             }
         });
 
-        var options = {
-            transport: require('nodemailer-stub-transport')(),
-            views: {
-                engines: {
-                    html: {
-                        module: Handlebars.create(),
-                        path: Path.join(__dirname, 'templates')
-                    }
-                }
+        const plugins = [
+          {
+            register: HapiMailer,
+            options: {
+              transport: require('nodemailer-stub-transport')(),
+              views: {
+                  engines: {
+                      html: {
+                          module: Handlebars.create(),
+                          path: Path.join(__dirname, 'templates')
+                      }
+                  }
+              }
             }
-        };
+          },
+          {
+            register: Vision
+          }
+        ];
 
-        var plugin = {
-            register: require('..'),
-            options: options
-        };
-
-        server.register(plugin, function (err) {
+        server.register(plugins, (err) => {
+          server.initialize((err) => {
+            expect(err).to.not.exist();
 
             server.inject({ method: 'POST', url: '/' }, function (res) {
 
@@ -76,6 +85,7 @@ describe('Mailer', function () {
 
                 done();
             });
+          });
         });
     });
 
@@ -106,15 +116,21 @@ describe('Mailer', function () {
             }
         });
 
-        var plugin = {
-            register: require('..'),
-            options: {
-                transport: require('nodemailer-stub-transport')()
-            }
-        };
+        var plugins = [
+          {
+            register: Vision
+          },
+          {
+              register: HapiMailer,
+              options: {
+                  transport: require('nodemailer-stub-transport')()
+              }
+          }
+        ];
 
-        server.register(plugin, function (err) {
+        server.register(plugins, function (err) {
 
+          server.initialize((err) => {
             server.inject({ method: 'POST', url: '/' }, function (res) {
 
                 expect(res.result).to.be.an.object();
@@ -122,6 +138,9 @@ describe('Mailer', function () {
 
                 done();
             });
+          });
+
+
         });
     });
 
@@ -157,8 +176,9 @@ describe('Mailer', function () {
             }
         };
 
-        server.register(plugin, function (err) {
+        server.register([Vision, plugin], function (err) {
 
+          server.initialize((err) => {
             server.inject({ method: 'POST', url: '/' }, function (res) {
 
                 expect(res.result).to.be.an.object();
@@ -166,6 +186,9 @@ describe('Mailer', function () {
 
                 done();
             });
+          });
+
+
         });
     });
 
@@ -217,13 +240,14 @@ describe('Mailer', function () {
             options: options
         };
 
-        server.register(plugin, function (err) {
-
+        server.register([Vision, plugin], function (err) {
+          server.initialize((err) => {
             server.inject({ method: 'POST', url: '/' }, function (res) {
 
                 expect(res.statusCode).to.equal(500);
                 done();
             });
+          });
         });
     });
 
@@ -272,8 +296,8 @@ describe('Mailer', function () {
             options: options
         };
 
-        server.register(plugin, function (err) {
-
+        server.register([Vision, plugin], function (err) {
+          server.initialize((err) => {
             server.inject({ method: 'POST', url: '/' }, function (res) {
 
                 expect(res.result).to.be.an.object();
@@ -284,6 +308,7 @@ describe('Mailer', function () {
 
                 done();
             });
+          });
         });
     });
 
@@ -325,17 +350,18 @@ describe('Mailer', function () {
             options: options
         };
 
-        server.register(plugin, function (err) {
-
+        server.register([Vision, plugin], function (err) {
+          server.initialize((err) => {
             server.inject({ method: 'POST', url: '/' }, function (res) {
 
                 expect(res.result).to.be.an.object();
 
                 var response = res.result.response.toString();
-                expect(response).to.match(/<img style="test" src="data:image\/png;base64,[^"]+" width="100%">/);
+                expect(response).to.match(/<img style=3D"test" src=3D"data:image\/png;base64,[^"]+" width=3D"100%">/);
 
                 done();
             });
+          });
         });
     });
 
@@ -384,8 +410,8 @@ describe('Mailer', function () {
             options: options
         };
 
-        server.register(plugin, function (err) {
-
+        server.register([Vision, plugin], function (err) {
+          server.initialize((err) => {
             server.inject({ method: 'POST', url: '/' }, function (res) {
 
                 Fs.readFile.restore();
@@ -393,6 +419,8 @@ describe('Mailer', function () {
                 expect(res.statusCode).to.equal(500);
                 done();
             });
+          });
+
         });
     });
 
@@ -444,19 +472,20 @@ describe('Mailer', function () {
             options: options
         };
 
-        server.register(plugin, function (err) {
-
+        server.register([Vision, plugin], function (err) {
+          server.initialize((err) => {
             server.inject({ method: 'POST', url: '/' }, function (res) {
 
                 expect(res.result).to.be.an.object();
 
                 var response = res.result.response.toString();
-                expect(response).to.contain('<p style="color: red; text-decoration: underline;">');
-                expect(response).to.contain('<strong style="font-weight: bold;">');
+                expect(response).to.contain('<p style=3D"color: red; =\r\ntext-decoration: underline;">');
+                expect(response).to.contain('<strong style=3D"font-weight: =\r\nbold;">');
                 expect(response).to.not.contain('<style>');
 
                 done();
             });
+          });
         });
     });
 
@@ -509,8 +538,8 @@ describe('Mailer', function () {
             options: options
         };
 
-        server.register(plugin, function (err) {
-
+        server.register([Vision, plugin], function (err) {
+          server.initialize((err) => {
             server.inject({ method: 'POST', url: '/' }, function (res) {
 
                 expect(res.result).to.be.an.object();
@@ -521,6 +550,8 @@ describe('Mailer', function () {
 
                 done();
             });
+          });
+
         });
     });
 
@@ -573,8 +604,8 @@ describe('Mailer', function () {
             options: options
         };
 
-        server.register(plugin, function (err) {
-
+        server.register([Vision, plugin], function (err) {
+          server.initialize((err) => {
             server.inject({ method: 'POST', url: '/' }, function (res) {
 
                 expect(res.result).to.be.an.object();
@@ -584,6 +615,7 @@ describe('Mailer', function () {
 
                 done();
             });
+          });
         });
     });
 });

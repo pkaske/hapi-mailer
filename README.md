@@ -28,9 +28,10 @@ The plugin accepts the following configuration options:
 ```
 const Handlebars = require('handlebars');
 const Path = require('path');
+const Vision = require('vision');
 
-const plugin = {
-  register: require('hapi-mailer'),
+const HapiMailer = {
+  register: require('@nesive/hapi-mailer'),
   options: {
     transport: {
       service: 'Gmail',
@@ -50,7 +51,7 @@ const plugin = {
   }
 };
 
-server.register(plugin, (err) => {
+server.register([Vision, HapiMailer], (err) => {
   // ...
 });
 

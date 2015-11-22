@@ -1,14 +1,14 @@
 {
-  "name": "hapi-mailer",
+  "name": "@nesive/hapi-mailer",
   "version": "4.0.0",
   "description": "Mailer plugin for hapi.",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
-    "test": "lab -a code -t 80 -L"
+    "test": "lab --assert code --lint --threshold 100 --verbose"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/gergoerdosi/hapi-mailer.git"
+    "url": "https://github.com/nesive/hapi-mailer.git"
   },
   "keywords": [
     "hapi",
@@ -17,29 +17,31 @@
     "mailer",
     "nodemailer"
   ],
-  "author": "Gergo Erdosi <gergo@gergoerdosi.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/gergoerdosi/hapi-mailer/issues"
+    "url": "https://github.com/nesive/hapi-mailer/issues"
   },
-  "homepage": "https://github.com/gergoerdosi/hapi-mailer",
+  "homepage": "https://github.com/nesive/hapi-mailer",
   "dependencies": {
-    "hoek": "2.x.x",
-    "items": "1.x.x",
-    "joi": "6.x.x",
-    "juice": "1.1.x",
-    "nodemailer": "1.3.x",
-    "nodemailer-plugin-inline-base64": "0.0.x"
+    "hoek": "3.0.x",
+    "items": "2.0.x",
+    "joi": "7.0.x",
+    "juice": "1.7.x",
+    "nodemailer": "1.10.x",
+    "nodemailer-plugin-inline-base64": "1.0.x"
   },
   "peerDependencies": {
-    "hapi": ">=8.0.0"
+    "hapi": ">=10.0.0",
+    "vision": ">=4.0.0"
   },
   "devDependencies": {
-    "code": "1.x.x",
-    "handlebars": "3.x.x",
-    "hapi": "8.x.x",
-    "lab": "5.x.x",
-    "nodemailer-stub-transport": "1.x.x",
-    "sinon": "1.14.x"
+    "code": "2.0.x",
+    "@nesive/eslint-config": "1.x.x",
+    "handlebars": "4.0.x",
+    "hapi": "11.1.x",
+    "lab": "7.3.x",
+    "nodemailer-stub-transport": "1.0.x",
+    "sinon": "1.17.x",
+    "vision": "4.0.x"
   }
 }

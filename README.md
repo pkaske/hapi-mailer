@@ -1,4 +1,8 @@
-# Hapi mailer plugin [![Build Status](https://travis-ci.org/nesive/hapi-mailer.svg)](https://travis-ci.org/nesive/hapi-mailer)
+# Hapi Mailer
+
+[![npm](https://img.shields.io/npm/v/@nesive/hapi-mailer.svg)](https://www.npmjs.com/package/@nesive/hapi-mailer)
+[![Build Status](https://travis-ci.org/nesive/hapi-mailer.svg?branch=master)](https://travis-ci.org/nesive/hapi-mailer)
+[![Dependency Status](https://david-dm.org/nesive/hapi-mailer.svg)](https://david-dm.org/nesive/hapi-mailer)
 
 A wrapper around Nodemailer used for sending email. It can be used with or without a template engine.
 

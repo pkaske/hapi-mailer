@@ -4,7 +4,7 @@
   "description": "Mailer plugin for hapi.",
   "main": "src/index.js",
   "scripts": {
-    "test": "lab --assert code --lint --treshold 80 --verbose"
+    "test": "lab --assert code --lint --threshold 100 --verbose"
   },
   "repository": {
     "type": "git",
@@ -36,6 +36,7 @@
   },
   "devDependencies": {
     "code": "2.0.x",
+    "@nesive/eslint-config": "1.x.x",
     "handlebars": "4.0.x",
     "hapi": "11.1.x",
     "lab": "7.3.x",

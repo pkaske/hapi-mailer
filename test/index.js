@@ -1,22 +1,17 @@
 'use strict';
 
 // Load external modules
-const Code = require('code');
 const Fs = require('fs');
 const Handlebars = require('handlebars');
 const Hapi = require('hapi');
 const Lab = require('lab');
-const Nodemailer = require('nodemailer');
 const Path = require('path');
 const Sinon = require('sinon');
 const Vision = require('vision');
 
-// Load internal modules
-const HapiMailer = require('..');
-
 // Test shortcuts
 const lab = exports.lab = Lab.script();
-const expect = Code.expect;
+const expect = Lab.assertions.expect;
 
 lab.describe('Mailer', () => {
   lab.it('sends the email when a view is used', (done) => {

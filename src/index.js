@@ -1,6 +1,6 @@
 'use strict';
 
-// Load modules
+// Load external modules
 const Fs = require('fs');
 const Hoek = require('hoek');
 const Items = require('items');
@@ -53,10 +53,11 @@ exports.register = function(server, options, next) {
             if (err) return cb(err);
 
             if (format === 'html' && config.inlineStyles) {
-              rendered = Juice(rendered);
+              data[format] = Juice(rendered); // eslint-disable-line new-cap
+            } else {
+              data[format] = rendered;
             }
 
-            data[format] = rendered;
             return cb();
           });
         } else {
@@ -71,7 +72,6 @@ exports.register = function(server, options, next) {
             return cb();
           });
         }
-
       }, (err) => {
         if (err) return callback(err);
 
@@ -81,12 +81,10 @@ exports.register = function(server, options, next) {
     });
 
     done();
-
   });
 
   next();
 };
-
 
 exports.register.attributes = {
   name: 'hapi-mailer'

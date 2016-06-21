@@ -11,7 +11,9 @@ const NodemailerPluginInlineBase64 = require('nodemailer-plugin-inline-base64');
 const Path = require('path');
 
 // Declare internals
-const internals = {};
+const internals = {
+  defaultTransport: null
+};
 
 internals.defaults = {
   views: {
@@ -28,22 +30,37 @@ internals.schema = Joi.object({
   inlineStyles: Joi.boolean()
 });
 
-exports.register = function(server, options, next) {
-  Joi.assert(options, internals.schema);
-  const config = Hoek.applyToDefaultsWithShallow(internals.defaults, options, ['views']);
+internals.createTransport = function(config) {
+  const transport = Nodemailer.createTransport(config);
 
-  const transport = Nodemailer.createTransport(config.transport);
-
-  if (config.inlineImages) {
+  if (internals.config.inlineImages) {
     transport.use('compile', NodemailerPluginInlineBase64);
   }
+
+  return transport;
+};
+
+exports.register = function(server, options, next) {
+  Joi.assert(options, internals.schema);
+  const config = internals.config = Hoek.applyToDefaultsWithShallow(internals.defaults, options, ['views']);
+
+  internals.defaultTransport = internals.createTransport(config.transport);
 
   server.dependency('vision', (server, done) => {
     if (Object.keys(config.views.engines).length) {
       server.views(config.views);
     }
 
-    server.expose('send', (data, callback) => {
+    server.expose('send', (data, transport, callback) => {
+      if (typeof transport == 'function') {
+        callback = transport;
+      }
+
+      let mailer = internals.defaultTransport;
+      if (typeof transport == 'object') {
+        mailer = internals.createTransport(transport);
+      }
+
       Items.parallel(['text', 'html'], (format, cb) => {
         const path = typeof data[format] === 'object' ? data[format].path : '';
         const extension = Path.extname(path).substr(1);
@@ -76,7 +93,7 @@ exports.register = function(server, options, next) {
         if (err) return callback(err);
 
         delete data.context;
-        transport.sendMail(data, callback);
+        mailer.sendMail(data, callback);
       });
     });
 

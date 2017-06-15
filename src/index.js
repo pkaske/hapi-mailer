@@ -34,7 +34,7 @@ internals.createTransport = function(config) {
   const transport = Nodemailer.createTransport(config);
 
   if (internals.config.inlineImages) {
-    transport.use('compile', NodemailerPluginInlineBase64);
+    transport.use('compile', NodemailerPluginInlineBase64());
   }
 
   return transport;

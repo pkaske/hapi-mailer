@@ -1,6 +1,6 @@
 {
-  "name": "@nesive/hapi-mailer",
-  "version": "5.0.1",
+  "name": "@pkaske/hapi-mailer",
+  "version": "5.1.0",
   "description": "Mailer plugin for hapi.",
   "main": "src/index.js",
   "scripts": {
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/nesive/hapi-mailer.git"
+    "url": "https://github.com/pkaske/hapi-mailer.git"
   },
   "keywords": [
     "hapi",
@@ -19,16 +19,16 @@
   ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/nesive/hapi-mailer/issues"
+    "url": "https://github.com/pkaske/hapi-mailer/issues"
   },
-  "homepage": "https://github.com/nesive/hapi-mailer",
+  "homepage": "https://github.com/pkaske/hapi-mailer",
   "dependencies": {
-    "hoek": "3.0.x",
-    "items": "2.0.x",
-    "joi": "7.0.x",
-    "juice": "1.7.x",
-    "nodemailer": "1.10.x",
-    "nodemailer-plugin-inline-base64": "1.0.x"
+    "hoek": "^4.0.0",
+    "items": "^2.0.0",
+    "joi": "^10.0.0",
+    "juice": "^4.0.0",
+    "nodemailer": "^4.0.0",
+    "nodemailer-plugin-inline-base64": "^2.0.0"
   },
   "peerDependencies": {
     "hapi": ">=10.0.0",
